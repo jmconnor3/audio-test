@@ -5,15 +5,18 @@ const path = require('path');
 const socket = require('socket.io');
 // app.use(express.static('/index.html'));
 const bodyParser = require('body-parser');
-//server.js
+//start listening
 const server = app.listen(5678, () => {
-    console.log('Example app listening on port 5678!');
-})
+  console.log('Example app listening on port 5678!');
+});
+// wrap socket around server
 const io = socket(server);
+// listen for sockets as they connect to the server
 io.sockets.on('connection', (socket) => {
-  console.log(socket.conn.server.clientsCount);
+  // tell socket to listen for a 'radio' event
   socket.on('radio', function(blob) {
-    console.log('some dame sound');
+    console.log(blob);
+    // emit voice stream data to all sockets
     socket.emit('voice', blob);
   });
 });
