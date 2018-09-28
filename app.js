@@ -6,7 +6,7 @@ const socket = require('socket.io');
 // app.use(express.static('/index.html'));
 const bodyParser = require('body-parser');
 //start listening
-const server = app.listen(5678, () => {
+const server = app.listen(process.env.PORT || 5678, () => {
   console.log('Example app listening on port 5678!');
 });
 // wrap socket around server
