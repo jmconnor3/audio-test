@@ -1,0 +1,31 @@
+{
+  "name": "audio-test",
+  "version": "1.0.0",
+  "description": "test for audio/jest",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "express": "jest --runInBand"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/jest": "^23.3.2",
+    "body-parser": "^1.18.3",
+    "jest-zone-patch": "0.0.8",
+    "path": "^0.12.7",
+    "socket.io": "^2.1.1",
+    "tsconfig": "^7.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "jest": "^23.6.0",
+    "jest-preset-angular": "^6.0.1",
+    "superagent": "^4.0.0-beta.5",
+    "supertest": "^3.3.0",
+    "ts-jest": "^23.10.2",
+    "typescript": "^3.0.3"
+  }
+}

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+   <!-- <script type='text/javascript'>
+      function hasGetUserMedia() {
+  return !!(navigator.mediaDevices &&
+    navigator.mediaDevices.getUserMedia);
+}
+    </script>  -->
+    <script src="http://localhost:5678/socket.io/socket.io.js"></script>
+</head>
+<body>
+ <!-- <audio controls></audio> -->
+  <!-- <iframe id="ytplayer" type="text/html" width="1" height="1"
+  src="https://www.youtube.com/embed?
+  listType=playlist
+  &list=PLaPF86zyEoQHTkmtfe6nUaDMlpHncbhxU"
+  frameborder="0"></iframe>
+  <iframe id="ytplayer" type="text/html" width="1" height="1"
+  src="https://www.youtube.com/embed/zJUF64iFGgo"
+  frameborder="0"></iframe>
+
+    <audio id='test' controls src='//www.xeno-canto.org/422998/download'></audio>
+  -->
+<!-- <script type='text/javascript'>
+  if (hasGetUserMedia()) {
+  // Good to go!
+  const audio = document.querySelector('audio')
+  navigator.mediaDevices.getUserMedia({audio: true}).
+  then((stream) =>{ 
+    audio.srcObject = stream
+    console.log(audio);
+    socket.emit('audio', stream);
+    });
+
+} else {
+  alert('getUserMedia() is not supported by your browser');
+} 
+</script>
+
+<script>
+// let audioContext;
+// if (typeof AudioContext === 'function') {
+//   audioContext = new AudioContext();
+// } else if (typeof webkitAudioContext === 'function') {
+//   audioContext = new webkitAudioContext(); // eslint-disable-line new-cap
+// } else {
+//   console.log('Sorry! Web Audio not supported.');
+// }
+
+// create a filter node
+// var filterNode = audioContext.createBiquadFilter();
+// // see https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html#BiquadFilterNode-section
+// filterNode.type = 'highpass';
+// // cutoff frequency: for highpass, audio is attenuated below this frequency
+// filterNode.frequency.value = 10000;
+
+// // create a gain node (to change audio volume)
+// var gainNode = audioContext.createGain();
+// // default is 1 (no change); less than 1 means audio is attenuated
+// // and vice versa
+// gainNode.gain.value = 0.5;
+
+navigator.mediaDevices.getUserMedia({audio: true}, (stream) => {
+  // Create an AudioNode from the stream
+  const mediaStreamSource =
+    audioContext.createMediaStreamSource(stream);
+  mediaStreamSource.connect(filterNode);
+  filterNode.connect(gainNode);
+  // connect the gain node to the destination (i.e. play the sound)
+  gainNode.connect(audioContext.destination);
+});
+</script> -->
+
+<script>
+  // creat connection to server with socket
+  const socket = io.connect('http://localhost:5678');
+  // set constrainsts for media devices
+var constraints = { audio: true };
+// select the audio element 
+const audio = document.querySelector('audio')
+// This function returns a promise that gives us access to the users mic and voice from mic
+navigator.mediaDevices.getUserMedia(constraints).then(function(mediaStream) {
+  // setting audio from tag so that the voice 
+    var mediaRecorder = new MediaRecorder(mediaStream);
+ 
+    mediaRecorder.onstart = function(e) {
+        this.chunks = [];
+    };
+    mediaRecorder.ondataavailable = function(e) {
+        this.chunks.push(e.data);
+    };
+    mediaRecorder.onstop = function(e) {
+      console.log('stopped')
+     
+      var blob = new Blob(this.chunks, { 'type' : 'audio/ogg; codecs=opus' });
+         socket.emit('radio',blob)
+    };
+  mediaRecorder.start();
+  console.log(mediaRecorder.state);
+  console.log("recorder started");
+  setTimeout(function() {
+
+        mediaRecorder.stop()
+    }, 5000);
+});
+    // Start recording
+  
+
+    // Stop recording after 5 seconds and broadcast it to server
+
+// When the client receives a voice message it will play the sound
+socket.on('voice', function(arrayBuffer) {
+    var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
+    var audio = document.createElement('audio');
+    audio.src = window.URL.createObjectURL(blob);
+    audio.play();
+});
+</script>
+
+</body>
+</html>
