@@ -14,6 +14,7 @@
     <script src="http://localhost:5678/socket.io/socket.io.js"></script>
 </head>
 <body>
+  <audio id="audio"></audio>
  <!-- <audio controls></audio> -->
   <!-- <iframe id="ytplayer" type="text/html" width="1" height="1"
   src="https://www.youtube.com/embed?
@@ -77,50 +78,72 @@ navigator.mediaDevices.getUserMedia({audio: true}, (stream) => {
 </script> -->
 
 <script>
-  // creat connection to server with socket
-const socket = io.connect('http://localhost:5678');
-  // set constrainsts for media devices
-var constraints = { audio: true };
-// select the audio element 
-const audio = document.querySelector('audio')
-// This function returns a promise that gives us access to the users mic and voice from mic
-navigator.mediaDevices.getUserMedia(constraints).then(function(mediaStream) {
-  // setting audio from tag so that the voice 
-    var mediaRecorder = new MediaRecorder(mediaStream);
-    // create chunks array to store audio data
-    mediaRecorder.onstart = function(e) {
-        this.chunks = [];
-    };
-    // push audio data into chunks array
-    mediaRecorder.ondataavailable = function(e) {
-        this.chunks.push(e.data);
-    };
-    mediaRecorder.onstop = function(e) {
-      console.log('stopped')
-     // convert audio data into sendable audio blob
-      var blob = new Blob(this.chunks, { 'type' : 'audio/ogg; codecs=opus' });
-        // emit blob
-         socket.emit('radio',blob)
-    };
-  // start recorder automatically on page render
-  mediaRecorder.start();
-  console.log("recorder started");
-  // stop recording after 5 seconds
-  setTimeout(function() {
-        mediaRecorder.stop()
-    }, 5000);
-});
-// When the client receives a voice message it will play the sound
-socket.on('voice', function(arrayBuffer) {
-    // convert data blob into audio
-    var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
-    // access audio element on dom
-    var audio = document.createElement('audio');
-    // assign audio element's src property to audio blob
-    audio.src = window.URL.createObjectURL(blob);
-    // play audio
-    audio.play();
-});
+  const socket = io.connect('http://localhost:5678');
+  const audio = document.querySelector('audio');
+(function(){
+  
+  
+  vendorUrl = window.webkitURL;
+  navigator.getMedia = navigator.webkitGetUserMedia;
+  navigator.getMedia({
+    video: false, 
+    audio: true
+  }, function(stream) {
+    audio.src = vendorUrl.createObjectURL(stream);
+    socket.emit("radio", audio.src);
+    // audio.play();
+  }, function(error){
+    console.log("error")
+  })
+})()
+socket.on('voice', function(stream){
+  audio.play(stream);
+})
+
+//   // create connection to server with socket
+// const socket = io.connect('http://localhost:5678');
+//   // set constrainsts for media devices
+// var constraints = { audio: true };
+// // select the audio element 
+// const audio = document.querySelector('audio')
+// // This function returns a promise that gives us access to the users mic and voice from mic
+// navigator.mediaDevices.getUserMedia(constraints).then(function(mediaStream) {
+//   // setting audio from tag so that the voice 
+//     var mediaRecorder = new MediaRecorder(mediaStream);
+//     // create chunks array to store audio data
+//     mediaRecorder.onstart = function(e) {
+//         this.chunks = [];
+//     };
+//     // push audio data into chunks array
+//     mediaRecorder.ondataavailable = function(e) {
+//         this.chunks.push(e.data);
+//     };
+//     mediaRecorder.onstop = function(e) {
+//       console.log('stopped')
+//      // convert audio data into sendable audio blob
+//       var blob = new Blob(this.chunks, { 'type' : 'audio/ogg; codecs=opus' });
+//         // emit blob
+//          socket.emit('radio',blob)
+//     };
+//   // start recorder automatically on page render
+//   mediaRecorder.start();
+//   console.log("recorder started");
+//   // stop recording after 5 seconds
+//   setTimeout(function() {
+//         mediaRecorder.stop()
+//     }, 5000);
+// });
+// // When the client receives a voice message it will play the sound
+// socket.on('voice', function(arrayBuffer) {
+//     // convert data blob into audio
+//     var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
+//     // access audio element on dom
+//     var audio = document.createElement('audio');
+//     // assign audio element's src property to audio blob
+//     audio.src = window.URL.createObjectURL(blob);
+//     // play audio
+//     audio.play();
+// });
 </script>
 
 </body>
