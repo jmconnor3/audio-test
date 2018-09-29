@@ -12,6 +12,7 @@
 }
     </script>  -->
     <script src="http://localhost:5678/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io-stream/0.9.1/socket.io-stream.js"></script>
 </head>
 <body>
   <audio id="audio"></audio>
@@ -80,25 +81,26 @@ navigator.mediaDevices.getUserMedia({audio: true}, (stream) => {
 <script>
   const socket = io.connect('http://localhost:5678');
   const audio = document.querySelector('audio');
+  const stream = ss.createStream();
+
 (function(){
-  
-  
   vendorUrl = window.webkitURL;
   navigator.getMedia = navigator.webkitGetUserMedia;
   navigator.getMedia({
     video: false, 
     audio: true
-  }, function(stream) {
-    audio.src = vendorUrl.createObjectURL(stream);
+  }, function(feed) {
+    audio.src = vendorUrl.createObjectURL(feed);
+    // ss(socket).emit('radio', audio.src);
     socket.emit("radio", audio.src);
     // audio.play();
   }, function(error){
     console.log("error")
-  })
-})()
+  });
+})();
 socket.on('voice', function(stream){
   audio.play(stream);
-})
+});
 
 //   // create connection to server with socket
 // const socket = io.connect('http://localhost:5678');
@@ -111,20 +113,22 @@ socket.on('voice', function(stream){
 //   // setting audio from tag so that the voice 
 //     var mediaRecorder = new MediaRecorder(mediaStream);
 //     // create chunks array to store audio data
-//     mediaRecorder.onstart = function(e) {
-//         this.chunks = [];
-//     };
-//     // push audio data into chunks array
-//     mediaRecorder.ondataavailable = function(e) {
-//         this.chunks.push(e.data);
-//     };
-//     mediaRecorder.onstop = function(e) {
-//       console.log('stopped')
-//      // convert audio data into sendable audio blob
-//       var blob = new Blob(this.chunks, { 'type' : 'audio/ogg; codecs=opus' });
-//         // emit blob
-//          socket.emit('radio',blob)
-//     };
+//     // mediaRecorder.onstart = function(e) {
+//     //     this.chunks = [];
+//     // };
+//     // // push audio data into chunks array
+//     // mediaRecorder.ondataavailable = function(e) {
+//     //     this.chunks.push(e.data);
+//     //     // socket.emit('radio', e.data);
+//     //     var blob = new Blob(this.chunks, { 'type': 'audio/ogg; codecs=opus' });
+//     //   // emit blob
+//     //   socket.emit('radio', blob)
+//     // };
+//     // mediaRecorder.onstop = function(e) {
+//     //   console.log('stopped')
+//     //  // convert audio data into sendable audio blob
+      
+//     // };
 //   // start recorder automatically on page render
 //   mediaRecorder.start();
 //   console.log("recorder started");
@@ -133,7 +137,7 @@ socket.on('voice', function(stream){
 //         mediaRecorder.stop()
 //     }, 5000);
 // });
-// // When the client receives a voice message it will play the sound
+// When the client receives a voice message it will play the sound
 // socket.on('voice', function(arrayBuffer) {
 //     // convert data blob into audio
 //     var blob = new Blob([arrayBuffer], { 'type' : 'audio/ogg; codecs=opus' });
