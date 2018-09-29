@@ -1,6 +1,7 @@
 //app.js
-const express = require('express')
-const app = express()
+const ss = require('socket.io-stream');
+const express = require('express');
+const app = express();
 const path = require('path');
 const socket = require('socket.io');
 // app.use(express.static('/index.html'));
@@ -14,10 +15,11 @@ const io = socket(server);
 // listen for sockets as they connect to the server
 io.sockets.on('connection', (socket) => {
   // tell socket to listen for a 'radio' event
-  socket.on('radio', function(blob) {
-    console.log(blob);
+  socket.on('radio', function(stream) {
+    console.log(stream);
+    
     // emit voice stream data to all sockets
-    socket.emit('voice', blob);
+    socket.broadcast.emit('voice', stream);
   });
 });
 
